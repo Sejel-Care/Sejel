@@ -1,0 +1,50 @@
+{
+  "name": "سِجِل - السجل الصحي الشخصي والعائلي",
+  "short_name": "سِجِل",
+  "description": "تطبيق متكامل لمراقبة الصحة الشخصية وإدارة الملف الطبي للعائلة مع دعم العمل بدون إنترنت",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#1A73E8",
+  "orientation": "portrait-primary",
+  "dir": "rtl",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "بطاقة الطوارئ",
+      "short_name": "الطوارئ",
+      "description": "فتح بطاقة الطوارئ الطبية الفورية",
+      "url": "./?action=emergency",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تسجيل عرض صوتي",
+      "short_name": "تسجيل عرض",
+      "description": "تسجيل عرض مرضي جديد صوتياً",
+      "url": "./?action=symptom",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تسجيل قياس حيوي",
+      "short_name": "قياس حيوي",
+      "description": "تسجيل قراءة ضغط أو سكر أو نبض",
+      "url": "./?action=vitals",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "categories": ["medical", "health", "lifestyle"]
+}
