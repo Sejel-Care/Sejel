@@ -103,6 +103,20 @@
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Mobile Safe Area & Touch optimizations */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+}
+
+.pt-safe {
+  padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 /* SOS Emergency Pulsing ring */
 .emergency-pulse {
   box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.7);

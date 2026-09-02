@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { I18nProvider } from './context/I18nContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PatientProvider } from './context/PatientContext';
@@ -24,13 +24,18 @@ import { EmergencyCardModal } from './components/emergency/EmergencyCardModal';
 import { VoiceRecorderModal } from './components/voice/VoiceRecorderModal';
 import { AddRecordModal } from './components/common/AddRecordModal';
 import { FamilyManagementModal } from './components/common/FamilyManagementModal';
+import { SplashScreen } from './components/common/SplashScreen';
+import { notificationService } from './services/notificationService';
 import { usePatient } from './context/PatientContext';
-import { Loader2, HeartPulse } from 'lucide-react';
+import { Loader2, HeartPulse, HardDrive, RefreshCw, X } from 'lucide-react';
 
 function AppContent() {
-  const { user, authLoading, isLocked } = useAuth();
+  const { user, authLoading, isLocked, refreshGoogleDriveToken } = useAuth();
   const { notifyDataChanged } = usePatient();
+  const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [driveExpiredBanner, setDriveExpiredBanner] = useState(false);
+  const [isRefreshingToken, setIsRefreshingToken] = useState(false);
   
   // Mobile drawer state
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -49,6 +54,39 @@ function AppContent() {
     isOpen: false,
     initialData: null
   });
+
+  // Start notification scheduler & listen for expired drive tokens
+  useEffect(() => {
+    notificationService.startScheduler();
+
+    const handleDriveExpired = () => {
+      setDriveExpiredBanner(true);
+    };
+
+    window.addEventListener('sejel:drive-auth-expired', handleDriveExpired);
+
+    return () => {
+      notificationService.stopScheduler();
+      window.removeEventListener('sejel:drive-auth-expired', handleDriveExpired);
+    };
+  }, []);
+
+  const handleRefreshDriveSession = async () => {
+    setIsRefreshingToken(true);
+    try {
+      if (refreshGoogleDriveToken) {
+        const res = await refreshGoogleDriveToken();
+        if (res) {
+          setDriveExpiredBanner(false);
+          alert('تم تجديد جلسة Google Drive بنجاح!');
+        }
+      }
+    } catch (err) {
+      console.warn('Refresh drive error:', err);
+    } finally {
+      setIsRefreshingToken(false);
+    }
+  };
 
   // Handlers for Add & Edit Modals
   const handleOpenAddModal = (type = 'visit') => {
@@ -74,7 +112,12 @@ function AppContent() {
     });
   };
 
-  // 1. Initial Authentication Loading State
+  // 1. Initial Animated Splash Screen
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} minDuration={2200} />;
+  }
+
+  // 2. Initial Authentication Loading State
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-4 text-slate-800 dark:text-slate-200">
@@ -89,7 +132,7 @@ function AppContent() {
     );
   }
 
-  // 2. Unauthenticated -> Show Google Sign-In Screen
+  // 3. Unauthenticated -> Show Google Sign-In Screen
   if (!user) {
     return <LoginScreen />;
   }
@@ -97,6 +140,32 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
       
+      {/* Google Drive Session Expired Top Warning Banner */}
+      {driveExpiredBanner && (
+        <div className="bg-amber-500 text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between shadow-md animate-slide-up z-50">
+          <div className="flex items-center gap-2">
+            <HardDrive className="w-4 h-4 shrink-0" />
+            <span>انتهت صلاحية جلسة Google Drive. يرجى تجديد الاتصال لمواصلة رفع الملفات والتسجيلات.</span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleRefreshDriveSession}
+              disabled={isRefreshingToken}
+              className="px-3 py-1 bg-white text-amber-800 rounded-lg text-xs font-black hover:bg-amber-50 transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3 h-3 ${isRefreshingToken ? 'animate-spin' : ''}`} />
+              <span>تجديد الجلسة</span>
+            </button>
+            <button
+              onClick={() => setDriveExpiredBanner(false)}
+              className="p-1 hover:bg-amber-600 rounded-lg text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Header with mobile hamburger and patient switcher */}
       <Header
         onOpenEmergency={() => setIsEmergencyOpen(true)}

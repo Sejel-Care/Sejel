@@ -168,11 +168,21 @@ export function Medications({ onOpenAddModal, onEditMedication }) {
                   </div>
                 </div>
 
-                <div className="space-y-1 text-xs text-slate-600 dark:text-slate-300 font-medium">
+                <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 font-medium">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-slate-400" />
                     <span>التكرار: <strong>{med.Frequency}</strong></span>
                   </div>
+                  {med.DoseTimes && med.DoseTimes.length > 0 && (
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] text-slate-400 font-bold">المواعيد:</span>
+                      {med.DoseTimes.map((dt, i) => (
+                        <span key={i} className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                          {dt}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {med.Instructions && (
                     <p className="text-[11px] text-slate-500">
                       الإرشادات: {med.Instructions}

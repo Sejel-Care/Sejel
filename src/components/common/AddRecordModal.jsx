@@ -428,18 +428,73 @@ export function AddRecordModal({
                   </div>
                 </div>
 
+                {/* Daily Dose Frequency Selector (1, 2, or 3 doses/day) */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('medications.frequency')} *
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    {t('medications.frequency')} (مواعيد الجرعات) *
                   </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: مرة صباحاً، كل 8 ساعات، عند اللزوم"
-                    value={formData.Frequency || ''}
-                    onChange={(e) => handleInputChange('Frequency', e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                  />
+                  <div className="grid grid-cols-3 gap-2 mb-2.5">
+                    {[
+                      { count: 1, label: '1 مرة يومياً', defaultTimes: ['08:00'] },
+                      { count: 2, label: '2 مرتان يومياً', defaultTimes: ['08:00', '20:00'] },
+                      { count: 3, label: '3 ثلاث مرات', defaultTimes: ['08:00', '14:00', '20:00'] },
+                    ].map((preset) => {
+                      const isSelected = (formData.DoseCount || (formData.DoseTimes ? formData.DoseTimes.length : 1)) === preset.count;
+                      return (
+                        <button
+                          key={preset.count}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              DoseCount: preset.count,
+                              Frequency: preset.label,
+                              DoseTimes: preset.defaultTimes
+                            }));
+                          }}
+                          className={`py-2 px-2 rounded-xl text-xs font-bold transition-all border ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                              : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'
+                          }`}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Specific Dose Times Pickers */}
+                  <div className="p-3.5 rounded-2xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-900/50 space-y-2">
+                    <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>أوقات إشعارات الجرعات (Web Push):</span>
+                    </span>
+                    
+                    <div className={`grid gap-2 ${(formData.DoseCount || 1) === 1 ? 'grid-cols-1' : (formData.DoseCount || 1) === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                      {Array.from({ length: formData.DoseCount || (formData.DoseTimes ? formData.DoseTimes.length : 1) }).map((_, idx) => (
+                        <div key={idx}>
+                          <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                            الجرعة {idx + 1} {idx === 0 ? '(صباحاً)' : idx === 1 && (formData.DoseCount || 2) === 2 ? '(مساءً)' : idx === 1 ? '(ظهراً)' : '(مساءً)'}
+                          </label>
+                          <input
+                            type="time"
+                            value={(formData.DoseTimes && formData.DoseTimes[idx]) || (idx === 0 ? '08:00' : idx === 1 ? '14:00' : '20:00')}
+                            onChange={(e) => {
+                              const count = formData.DoseCount || 1;
+                              const currentTimes = [...(formData.DoseTimes || ['08:00'])];
+                              while (currentTimes.length < count) {
+                                currentTimes.push(currentTimes.length === 1 ? '20:00' : '14:00');
+                              }
+                              currentTimes[idx] = e.target.value;
+                              handleInputChange('DoseTimes', currentTimes);
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -484,12 +539,12 @@ export function AddRecordModal({
                   <input
                     type="checkbox"
                     id="remEnabled"
-                    checked={formData.ReminderEnabled || false}
+                    checked={formData.ReminderEnabled !== false}
                     onChange={(e) => handleInputChange('ReminderEnabled', e.target.checked)}
                     className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
                   />
                   <label htmlFor="remEnabled" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-                    {t('medications.reminders')}
+                    تفعيل إشعارات التذكير بالجرعات (Web Push)
                   </label>
                 </div>
               </>

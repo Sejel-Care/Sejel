@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useI18n } from '../context/I18nContext';
 import { useAuth } from '../context/AuthContext';
 import { useSync } from '../context/SyncContext';
 import { db, initDatabaseSeed, initialSeedData } from '../db/indexedDB';
 import { PrintableMedicalReportModal } from '../components/common/PrintableMedicalReportModal';
+import { notificationService } from '../services/notificationService';
 import { 
   Cloud, RefreshCw, KeyRound, 
   Download, Upload, CheckCircle2, 
-  AlertCircle, Database, Printer, ExternalLink, HardDrive, LogOut, UserCheck 
+  AlertCircle, Database, Printer, ExternalLink, HardDrive, LogOut, UserCheck,
+  Bell, BellRing, Send, Sparkles 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -20,6 +22,39 @@ export function Settings() {
   const [pinChangeSuccess, setPinChangeSuccess] = useState(false);
   const [pinChangeError, setPinChangeError] = useState('');
   const [showPrintReport, setShowPrintReport] = useState(false);
+  const [notifPermission, setNotifPermission] = useState(() => notificationService.getPermission());
+  const [isEnablingNotif, setIsEnablingNotif] = useState(false);
+  const [notifSuccessMsg, setNotifSuccessMsg] = useState('');
+
+  useEffect(() => {
+    setNotifPermission(notificationService.getPermission());
+  }, []);
+
+  const handleEnableNotifications = async () => {
+    setIsEnablingNotif(true);
+    setNotifSuccessMsg('');
+    try {
+      const res = await notificationService.requestPermission();
+      setNotifPermission(notificationService.getPermission());
+      if (res.success) {
+        setNotifSuccessMsg('تم تفعيل إشعارات الويب وتنبيهات الأدوية بنجاح!');
+        try { confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } }); } catch {}
+        await notificationService.sendTestNotification();
+      } else {
+        alert(res.error || 'تعذر تفعيل الإشعارات');
+      }
+    } catch (err) {
+      alert('خطأ أثناء تفعيل الإشعارات: ' + err.message);
+    } finally {
+      setIsEnablingNotif(false);
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    await notificationService.sendTestNotification();
+    setNotifSuccessMsg('تم إرسال إشعار تجريبي إلى جهازك!');
+    setTimeout(() => setNotifSuccessMsg(''), 3500);
+  };
 
   const handleChangePin = async (e) => {
     e.preventDefault();
@@ -217,6 +252,57 @@ export function Settings() {
             <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
             <span>{isSyncing ? t('common.loading') : t('settings.sync_now')}</span>
           </button>
+        </div>
+      </div>
+
+      {/* 2. Web Push Notifications & Medication Reminders */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700 shadow-sm space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-700">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">
+            <BellRing className="w-5 h-5" />
+            <span>إشعارات وتنبيهات الأدوية والمواعيد (Web Push & FCM)</span>
+          </div>
+          <span className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold ${
+            notifPermission === 'granted'
+              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300'
+              : notifPermission === 'denied'
+              ? 'bg-red-100 text-red-800 dark:bg-red-950/80 dark:text-red-300'
+              : 'bg-amber-100 text-amber-800 dark:bg-amber-950/80 dark:text-amber-300'
+          }`}>
+            {notifPermission === 'granted' ? 'مفعلة ✓' : notifPermission === 'denied' ? 'محظورة' : 'غير مفعلة'}
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          تتيح لك الإشعارات الفورية تلقي تنبيهات بمواعيد جرعات الأدوية (1 أو 2 أو 3 جرعات يومياً) ومواعيد الزيارات الطبية حتى عندما يكون التطبيق مغلقاً عبر تقنية Service Worker.
+        </p>
+
+        {notifSuccessMsg && (
+          <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>{notifSuccessMsg}</span>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2.5 pt-1">
+          {notifPermission !== 'granted' ? (
+            <button
+              onClick={handleEnableNotifications}
+              disabled={isEnablingNotif}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition-all active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <Bell className="w-4 h-4" />
+              <span>{isEnablingNotif ? 'جاري طلب الإذن...' : 'تفعيل إشعارات الويب وتنبيهات الجرعات'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleSendTestNotification}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+            >
+              <Send className="w-4 h-4" />
+              <span>إرسال إشعار تجريبي 🔔</span>
+            </button>
+          )}
         </div>
       </div>
 

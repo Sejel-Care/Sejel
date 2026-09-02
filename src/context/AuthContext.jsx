@@ -114,6 +114,29 @@ export function AuthProvider({ children }) {
   }, []);
 
   /**
+   * تجديد رمز وصول Google Drive تلقائياً عند الحاجة
+   */
+  const refreshGoogleDriveToken = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential?.accessToken;
+      if (token) {
+        setAccessToken(token);
+        driveService.setAccessToken(token);
+        return token;
+      }
+    } catch (err) {
+      console.warn('[Sejel Auth] Refresh Google Drive token error:', err);
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    driveService.registerRefreshHandler(refreshGoogleDriveToken);
+  }, []);
+
+  /**
    * تسجيل الدخول بحساب Google مع صلاحية Google Drive (drive.file)
    */
   const signInWithGoogle = async () => {
@@ -237,6 +260,7 @@ export function AuthProvider({ children }) {
       authLoading,
       authError,
       signInWithGoogle,
+      refreshGoogleDriveToken,
       logout,
       isLocked,
       setIsLocked,

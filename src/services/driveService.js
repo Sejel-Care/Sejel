@@ -73,6 +73,32 @@ export const driveService = {
   getPlayableAudioUrl,
   getDriveDirectViewUrl,
   sanitizeFolderName,
+  _refreshHandler: null,
+
+  /**
+   * تسجيل دالة تجديد رمز Google OAuth عند انتهاء صلاحية الجلسة
+   */
+  registerRefreshHandler(handler) {
+    this._refreshHandler = handler;
+  },
+
+  /**
+   * محاولة تجديد رمز وصول Google تلقائياً
+   */
+  async refreshToken() {
+    if (typeof this._refreshHandler === 'function') {
+      try {
+        const freshToken = await this._refreshHandler();
+        if (freshToken) {
+          this.setAccessToken(freshToken);
+          return freshToken;
+        }
+      } catch (err) {
+        console.warn('[driveService] Automatic token refresh failed:', err);
+      }
+    }
+    return null;
+  },
 
   /**
    * جلب رمز وصول Google OAuth2 إن وُجد
@@ -106,10 +132,14 @@ export const driveService = {
   /**
    * إيجاد أو إنشاء مجلد على Google Drive عبر Google Drive API v3
    */
-  async findOrCreateFolder(folderName, parentId = null, accessToken = null) {
-    const token = accessToken || this.getAccessToken();
+  async findOrCreateFolder(folderName, parentId = null, accessToken = null, isRetry = false) {
+    let token = accessToken || this.getAccessToken();
     if (!token) {
-      throw new Error('Google Drive Access Token is missing. Please sign in with Google.');
+      // محاولة تجديد الرمز إن كان مفقوداً
+      token = await this.refreshToken();
+      if (!token) {
+        throw new Error('Google Drive Access Token is missing. Please sign in with Google.');
+      }
     }
 
     try {
@@ -136,8 +166,14 @@ export const driveService = {
         if (searchData.files && searchData.files.length > 0) {
           return searchData.files[0].id;
         }
-      } else if (searchRes.status === 401) {
-        throw new Error('Google Drive session expired (401). Please sign in again.');
+      } else if (searchRes.status === 401 && !isRetry) {
+        console.warn('[driveService] 401 Unauthorized in findOrCreateFolder. Refreshing token...');
+        const freshToken = await this.refreshToken();
+        if (freshToken) {
+          return await this.findOrCreateFolder(folderName, parentId, freshToken, true);
+        }
+        window.dispatchEvent(new CustomEvent('sejel:drive-auth-expired'));
+        throw new Error('انتهت صلاحية جلسة Google Drive (401). يرجى تسجيل الدخول بحساب Google لتجديد الاتصال.');
       }
 
       const metadata = {
@@ -158,6 +194,13 @@ export const driveService = {
       if (createRes.ok) {
         const createData = await createRes.json();
         return createData.id;
+      } else if (createRes.status === 401 && !isRetry) {
+        const freshToken = await this.refreshToken();
+        if (freshToken) {
+          return await this.findOrCreateFolder(folderName, parentId, freshToken, true);
+        }
+        window.dispatchEvent(new CustomEvent('sejel:drive-auth-expired'));
+        throw new Error('انتهت صلاحية جلسة Google Drive (401). يرجى إعادة تسجيل الدخول بحساب Google.');
       } else {
         const errText = await createRes.text();
         throw new Error(`Failed to create folder "${folderName}": ${createRes.status} ${errText}`);
@@ -288,6 +331,14 @@ export const driveService = {
     );
 
     if (!uploadRes.ok) {
+      if (uploadRes.status === 401 && !accessToken) {
+        console.warn('[driveService] 401 Unauthorized during upload. Refreshing token...');
+        const freshToken = await this.refreshToken();
+        if (freshToken) {
+          return await this.uploadViaDriveApi(fileBlob, fileName, mimeType, folderId, freshToken);
+        }
+        window.dispatchEvent(new CustomEvent('sejel:drive-auth-expired'));
+      }
       const errText = await uploadRes.text();
       throw new Error(`Google Drive API error: ${uploadRes.status} ${errText}`);
     }
