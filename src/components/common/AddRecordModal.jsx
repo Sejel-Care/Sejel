@@ -8,9 +8,10 @@ import { toStorageDate } from '../../utils/dateUtils';
 import { 
   X, Save, Stethoscope, Pill, Activity, Calendar, 
   UploadCloud, UserPlus, HeartPulse, Check, Plus, AlertCircle, Edit3,
-  Loader2, CheckCircle2, FileText
+  Loader2, CheckCircle2, FileText, Clock, Bell
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { calendarService } from '../../services/calendarService';
 
 export function AddRecordModal({ 
   isOpen, 
@@ -33,6 +34,8 @@ export function AddRecordModal({
   useEffect(() => {
     if (isOpen) {
       setLoading(false);
+      setSaveSuccess(false);
+      setStatusMessage('');
       setSelectedFile(null);
       
       const todayStr = new Date().toISOString().split('T')[0];
@@ -52,13 +55,17 @@ export function AddRecordModal({
             Diagnosis: '',
             Notes: '',
             NextAppointmentDate: '',
+            syncCalendar: true,
+            CalendarReminderMinutes: [1440, 60],
             Attachments: '[]'
           });
         } else if (recordType === 'medication') {
           setFormData({
             Name: '',
             Dosage: '',
-            Frequency: 'مرة واحدة يومياً',
+            Frequency: '1 مرة يومياً',
+            DoseCount: 1,
+            DoseTimes: ['08:00'],
             StartDate: todayStr,
             EndDate: '',
             Instructions: '',
@@ -192,6 +199,36 @@ export function AddRecordModal({
         };
         const { table, pk } = tableMap[recordType];
         setStatusMessage(lang === 'ar' ? 'جاري حفظ السجل...' : 'Saving record...');
+
+        // مزامنة الموعد تلقائياً مع Google Calendar
+        if ((recordType === 'appointment' || (recordType === 'visit' && formData.NextAppointmentDate)) && formData.syncCalendar !== false) {
+          try {
+            const calDate = recordType === 'visit' ? formData.NextAppointmentDate : formData.Date;
+            const calTitle = formData.Title || (formData.DoctorName ? `موعد مع د. ${formData.DoctorName}` : 'موعد طبي');
+            const calLocation = formData.Location || formData.Clinic || '';
+            const calNotes = formData.Notes || `العيادة: ${calLocation}`;
+
+            if (calDate) {
+              const calRes = await calendarService.createCalendarEvent({
+                title: calTitle,
+                description: calNotes,
+                location: calLocation,
+                date: calDate.split('T')[0],
+                time: formData.Time || '09:00',
+                reminderMinutes: formData.CalendarReminderMinutes || [1440, 60]
+              });
+
+              if (calRes && calRes.eventId) {
+                formData.GoogleCalendarEventID = calRes.eventId;
+              }
+              if (calRes && calRes.htmlLink) {
+                formData.CalendarLink = calRes.htmlLink;
+              }
+            }
+          } catch (calErr) {
+            console.warn('[AddRecordModal] Google Calendar sync skipped:', calErr);
+          }
+        }
 
         if (isEditMode) {
           await updateRecord(table, initialData[pk], formData);
@@ -701,17 +738,42 @@ export function AddRecordModal({
                   />
                 </div>
 
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="syncCal"
-                    checked={formData.syncCalendar || false}
-                    onChange={(e) => handleInputChange('syncCalendar', e.target.checked)}
-                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
-                  />
-                  <label htmlFor="syncCal" className="text-xs font-bold text-slate-700 dark:text-slate-300 cursor-pointer">
-                    {t('appointments.sync_calendar')}
-                  </label>
+                <div className="p-3.5 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/50 space-y-2.5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="syncCal"
+                      checked={formData.syncCalendar !== false}
+                      onChange={(e) => handleInputChange('syncCalendar', e.target.checked)}
+                      className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+                    />
+                    <label htmlFor="syncCal" className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                      <span>إضافة وتنبيه عبر تقويم Google (Google Calendar) 📅</span>
+                    </label>
+                  </div>
+
+                  {formData.syncCalendar !== false && (
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">
+                        تنبيه الهاتف الذكي قبل الموعد بـ:
+                      </label>
+                      <select
+                        value={JSON.stringify(formData.CalendarReminderMinutes || [1440, 60])}
+                        onChange={(e) => {
+                          try {
+                            handleInputChange('CalendarReminderMinutes', JSON.parse(e.target.value));
+                          } catch {}
+                        }}
+                        className="w-full px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                      >
+                        <option value="[1440, 60]">قبل الموعد بـ 24 ساعة وساعة واحدة (موصى به)</option>
+                        <option value="[60]">قبل الموعد بساعة واحدة فقط</option>
+                        <option value="[180, 60]">قبل الموعد بـ 3 ساعات وساعة واحدة</option>
+                        <option value="[2880, 1440]">قبل الموعد بيومين ويوم واحد</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               </>
             )}

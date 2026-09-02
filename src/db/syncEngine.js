@@ -104,6 +104,10 @@ export const syncEngine = {
         }
       }
 
+      try {
+        window.dispatchEvent(new CustomEvent('sejel:sync-completed', { detail: { pushedCount, pulledCount } }));
+      } catch {}
+
       return {
         success: true,
         pushedCount,

@@ -19,6 +19,25 @@
   input, textarea, select {
     user-select: auto;
   }
+
+  .dark input, .dark textarea, .dark select {
+    color-scheme: dark;
+  }
+}
+
+/* Dark Mode Contrast Optimizations */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8;
+}
+
+.dark select option {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.dark .text-muted {
+  color: #94a3b8 !important;
 }
 
 /* Glassmorphism Styles */

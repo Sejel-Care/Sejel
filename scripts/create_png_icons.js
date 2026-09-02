@@ -71,8 +71,8 @@ function generateSejelIcon(size) {
       // Base background: transparent
       let r = 0, g = 0, b = 0, a = 0;
 
-      // Shield Rounded Box: x=24, y=24, w=464, h=464, radius=100
-      const dShield = distRoundedRect(px, py, 24, 24, 464, 464, 100);
+      // Shield Rounded Box with 12% safe padding: x=56, y=56, w=400, h=400, radius=90
+      const dShield = distRoundedRect(px, py, 56, 56, 400, 400, 90);
 
       if (dShield <= 1.0) {
         // Antialiasing for shield
@@ -84,10 +84,10 @@ function generateSejelIcon(size) {
         let bgB = Math.round(232 * (1 - t) + 176 * t);
 
         // Cross Bars:
-        // Vertical: x=220, y=116, w=72, h=280, r=36
-        // Horizontal: x=116, y=220, w=280, h=72, r=36
-        const dV = distRoundedRect(px, py, 220, 116, 72, 280, 36);
-        const dH = distRoundedRect(px, py, 116, 220, 280, 72, 36);
+        // Vertical: x=226, y=136, w=60, h=240, r=30
+        // Horizontal: x=136, y=226, w=240, h=60, r=30
+        const dV = distRoundedRect(px, py, 226, 136, 60, 240, 30);
+        const dH = distRoundedRect(px, py, 136, 226, 240, 60, 30);
         const dCross = Math.min(dV, dH);
 
         let crossAlpha = 0;
@@ -96,9 +96,9 @@ function generateSejelIcon(size) {
         }
 
         // ECG Heartbeat Line:
-        // Points: (120,256) -> (210,256) -> (230,200) -> (256,320) -> (280,220) -> (300,256) -> (392,256)
+        // Points: (140,256) -> (216,256) -> (234,206) -> (256,308) -> (278,222) -> (296,256) -> (372,256)
         const pts = [
-          [120, 256], [210, 256], [230, 200], [256, 320], [280, 220], [300, 256], [392, 256]
+          [140, 256], [216, 256], [234, 206], [256, 308], [278, 222], [296, 256], [372, 256]
         ];
         
         function distToSegment(x0, y0, x1, y1, x2, y2) {
@@ -115,16 +115,16 @@ function generateSejelIcon(size) {
           if (d < minLineDist) minLineDist = d;
         }
 
-        // Heart Dot at (256, 170), radius 16
-        const dDot = Math.hypot(px - 256, py - 170) - 16;
+        // Heart Dot at (256, 186), radius 14
+        const dDot = Math.hypot(px - 256, py - 186) - 14;
         let dotAlpha = 0;
         if (dDot <= 1.0) {
           dotAlpha = Math.min(1.0, Math.max(0.0, 0.5 - dDot));
         }
 
         let ecgAlpha = 0;
-        if (minLineDist <= 8) {
-          ecgAlpha = Math.min(1.0, Math.max(0.0, (8 - minLineDist)));
+        if (minLineDist <= 7) {
+          ecgAlpha = Math.min(1.0, Math.max(0.0, (7 - minLineDist)));
         }
 
         // Composite layers

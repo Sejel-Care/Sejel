@@ -25,11 +25,13 @@ export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-// Configure Google Auth Provider with drive.file scope
+// Configure Google Auth Provider with drive.file and calendar.events scopes
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/drive.file');
+googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: 'consent',
+  access_type: 'offline'
 });
 
 export default app;

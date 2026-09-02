@@ -280,6 +280,51 @@ export const notificationService = {
           }
         }
       }
+
+      // 3. التنبيهات الصحية التفاعلية الذكية (Smart Engagement & Personalized Chronic Care)
+      const currentHourNum = now.getHours();
+
+      // رسالة الصباح التفاعلية المخصصة (بين 08:30 و 09:30)
+      if (currentHourNum === 9 && now.getMinutes() === 0) {
+        const morningKey = `smart_engage_morning_${todayStr}`;
+        if (!localStorage.getItem(morningKey)) {
+          localStorage.setItem(morningKey, 'sent');
+
+          const patients = await dexieDb.patients.toArray();
+          const p = patients[0] || {};
+          const chronic = (p.ChronicDiseases || '').toLowerCase();
+
+          let title = 'صباح الخير من سِجِل ☀️';
+          let body = 'ابدأ يومك بنشاط وكوب من الماء 💧 وتفقد مواعيد أدويتك اليومية.';
+
+          if (chronic.includes('سكر') || chronic.includes('diabet')) {
+            title = 'سِجِل - رعاية السكري 🩸';
+            body = 'صباح الخير! تذكير بقياس مستوى السكر في الدم على الريق وتوثيقه في سِجِل.';
+          } else if (chronic.includes('ضغط') || chronic.includes('hypertens')) {
+            title = 'سِجِل - صحة القلب 🫀';
+            body = 'صباح الصحة! لا تنس قياس ضغط الدم في وضع الراحة وتسجيل القراءة.';
+          } else if (chronic.includes('ربو') || chronic.includes('asthma')) {
+            title = 'سِجِل - سلامة التنفس 🫁';
+            body = 'صباح الخير! تأكد من وجود البخاخ في متناول يدك وتجنب المثيرات التنفسية.';
+          }
+
+          await this.showLocalNotification(title, { body, tag: morningKey, url: '/' });
+        }
+      }
+
+      // رسالة المساء للمتابعة والالتزام العلاجي (الساعة 20:00)
+      if (currentHourNum === 20 && now.getMinutes() === 0) {
+        const eveningKey = `smart_engage_evening_${todayStr}`;
+        if (!localStorage.getItem(eveningKey)) {
+          localStorage.setItem(eveningKey, 'sent');
+
+          await this.showLocalNotification('سِجِل - متابعة المساء 🌙', {
+            body: 'مساء الخير! هل تناولت جميع أدويتك اليوم؟ راجع سجلك وتأكد من اكتمال جرعاتك.',
+            tag: eveningKey,
+            url: '/#medications'
+          });
+        }
+      }
     } catch (err) {
       console.warn('[notificationService] Error during checkDueReminders:', err);
     }

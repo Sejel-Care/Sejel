@@ -11,17 +11,32 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-// دالة الكشف عن صيغة الصوت المدعومة في المتصفح الحالي
+// دالة الكشف عن صيغة الصوت المدعومة في المتصفح الحالي (iOS Safari & Android Chrome)
 function getSupportedAudioMimeType() {
   if (typeof MediaRecorder === 'undefined') return '';
-  const candidates = [
-    'audio/webm;codecs=opus',
-    'audio/webm',
-    'audio/mp4',
-    'audio/aac',
-    'audio/ogg',
-    'audio/wav'
-  ];
+  const isIOS = typeof navigator !== 'undefined' && (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+
+  const candidates = isIOS
+    ? [
+        'audio/mp4',
+        'audio/aac',
+        'audio/m4a',
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/wav'
+      ]
+    : [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/aac',
+        'audio/ogg',
+        'audio/wav'
+      ];
+
   for (const mime of candidates) {
     try {
       if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(mime)) {
@@ -46,6 +61,7 @@ export function VoiceRecorderModal({ isOpen, onClose, initialData = null, onSave
   const [duration, setDuration] = useState('ساعتان');
   const [notes, setNotes] = useState('');
   const [audioUrl, setAudioUrl] = useState('');
+  const [audioPlaybackFailed, setAudioPlaybackFailed] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(true);
   const [recordError, setRecordError] = useState('');
 
@@ -255,10 +271,21 @@ export function VoiceRecorderModal({ isOpen, onClose, initialData = null, onSave
   };
 
   const handleSaveSymptom = async () => {
-    if (!transcript.trim() && !notes.trim()) {
-      alert(lang === 'ar' ? 'يرجى تسجيل أو كتابة وصف العرض أولاً' : 'Please provide a symptom description');
+    const hasText = !!(transcript.trim() || notes.trim());
+    const hasAudio = !!(audioBlobRef.current || audioUrl);
+
+    // إذا لم يكن هناك نص ولا تسجيل صوتي، نطلب أحدهما من المستخدم
+    if (!hasText && !hasAudio) {
+      alert(lang === 'ar' ? 'يرجى تسجيل الصوت أو كتابة وصف العرض الطبي أولاً' : 'Please record audio or provide a symptom description');
       return;
     }
+
+    // إذا كان هناك تسجيل صوتي ولكن لم يتعرف المتصفح على الصوت كنص، نعتمد وصفاً تلقائياً ذكياً
+    const finalDescription = transcript.trim() || notes.trim() || (
+      lang === 'ar'
+        ? `تسجيل صوتي للأعراض (${new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })})`
+        : `Voice Symptom Recording (${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })})`
+    );
 
     setIsSaving(true);
 
@@ -290,7 +317,7 @@ export function VoiceRecorderModal({ isOpen, onClose, initialData = null, onSave
         uid: user?.uid || 'General',
         PatientID: activePatientId || 'P_01',
         Date: initialData?.Date || new Date().toISOString(),
-        Description: transcript.trim() || notes.trim(),
+        Description: finalDescription,
         Severity: Number(severity),
         AudioFileURL: finalAudioUrl,
         audioUrl: finalAudioUrl,
@@ -434,24 +461,42 @@ export function VoiceRecorderModal({ isOpen, onClose, initialData = null, onSave
 
             {/* Audio Playback */}
             {audioUrl && !isRecording && (
-              <div className="mt-3 flex flex-col sm:flex-row items-center justify-center gap-2 p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-900">
-                <audio 
-                  src={getPlayableAudioUrl(audioUrl)} 
-                  controls 
-                  preload="metadata"
-                  className="h-8 max-w-full flex-1" 
-                />
-                {getDriveDirectViewUrl(audioUrl) && getDriveDirectViewUrl(audioUrl).startsWith('http') && (
-                  <a
-                    href={getDriveDirectViewUrl(audioUrl)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-200/80 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-[11px] font-bold hover:bg-purple-300 transition-colors shrink-0"
-                    title="فتح التسجيل الصوتي في Google Drive"
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                    <span>Drive</span>
-                  </a>
+              <div className="mt-3 space-y-2">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-900">
+                  <audio 
+                    src={getPlayableAudioUrl(audioUrl)} 
+                    controls 
+                    preload="metadata"
+                    onError={() => setAudioPlaybackFailed(true)}
+                    onPlay={() => setAudioPlaybackFailed(false)}
+                    className="h-8 max-w-full flex-1" 
+                  />
+                  {(getDriveDirectViewUrl(audioUrl) || audioUrl) && (
+                    <a
+                      href={getDriveDirectViewUrl(audioUrl) || audioUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold transition-colors shrink-0 shadow-sm"
+                      title="فتح التسجيل الصوتي في نافذة جديدة"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>{lang === 'ar' ? 'فتح في تبويب جديد' : 'Open in New Tab'}</span>
+                    </a>
+                  )}
+                </div>
+
+                {audioPlaybackFailed && (
+                  <div className="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-900 text-amber-800 dark:text-amber-200 text-[11px] font-bold flex items-center justify-between gap-2">
+                    <span>تعذر تشغيل الصوت داخل المتصفح مباشرة.</span>
+                    <a
+                      href={getDriveDirectViewUrl(audioUrl) || audioUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline hover:text-amber-900 dark:hover:text-amber-100"
+                    >
+                      اضغط للتشغيل الخارجي ↗
+                    </a>
+                  </div>
                 )}
               </div>
             )}

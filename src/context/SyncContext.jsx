@@ -23,9 +23,10 @@ export function SyncProvider({ children }) {
   useEffect(() => {
     refreshPendingCount();
 
+    let syncTimeout = null;
+
     const handleOnline = () => {
       setIsOnline(true);
-      // تلقائياً نحاول المزامنة عند استعادة الاتصال
       handleSync();
     };
 
@@ -33,15 +34,34 @@ export function SyncProvider({ children }) {
       setIsOnline(false);
     };
 
+    const handleDataChanged = () => {
+      refreshPendingCount();
+      if (navigator.onLine) {
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+          handleSync();
+        }, 800);
+      }
+    };
+
+    const handleSyncCompleted = () => {
+      refreshPendingCount();
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('sejel:data-changed', handleDataChanged);
+    window.addEventListener('sejel:sync-completed', handleSyncCompleted);
 
-    // فحص دوري لقائمة الانتظار كل 10 ثوانٍ
-    const interval = setInterval(refreshPendingCount, 10000);
+    // فحص دوري لقائمة الانتظار كل 8 ثوانٍ
+    const interval = setInterval(refreshPendingCount, 8000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('sejel:data-changed', handleDataChanged);
+      window.removeEventListener('sejel:sync-completed', handleSyncCompleted);
+      if (syncTimeout) clearTimeout(syncTimeout);
       clearInterval(interval);
     };
   }, []);
