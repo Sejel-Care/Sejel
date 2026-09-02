@@ -28,7 +28,7 @@ export function sanitizeFolderName(name) {
  */
 export function getPlayableAudioUrl(url = '') {
   if (!url) return '';
-  // إذا كان Data URL أو Blob URL
+  // إذا كان Data URL أو Blob URL محلي
   if (url.startsWith('data:') || url.startsWith('blob:')) return url;
 
   // استخراج ID الملف من مختلف صيغ روابط Google Drive
@@ -42,18 +42,20 @@ export function getPlayableAudioUrl(url = '') {
   else if (matchLh3) fileId = matchLh3[1];
 
   if (fileId) {
-    // رابط التشغيل والتنزيل المباشر الصالح لـ HTML5 <audio>
-    return `https://docs.google.com/uc?export=download&id=${fileId}`;
+    // رابط التشغيل والتنزيل المباشر الصالح لـ HTML5 <audio> بدون طلب تسجيل الدخول
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
   }
 
   return url;
 }
 
 /**
- * جلب رابط فتح الملف أو التسجيل مباشرة في Google Drive
+ * جلب رابط فتح الملف أو التسجيل مباشرة بدون نافذة اختيار الحساب
  */
 export function getDriveDirectViewUrl(url = '') {
   if (!url) return '';
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+
   let fileId = null;
   const matchView = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   const matchId = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
@@ -64,7 +66,8 @@ export function getDriveDirectViewUrl(url = '') {
   else if (matchLh3) fileId = matchLh3[1];
 
   if (fileId) {
-    return `https://drive.google.com/file/d/${fileId}/view`;
+    // رابط التنزيل/التشغيل المباشر الذي لا يطلب إعادة اختيار الحساب
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
   }
   return url;
 }

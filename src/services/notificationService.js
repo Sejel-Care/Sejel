@@ -138,7 +138,10 @@ export const notificationService = {
     const defaultOptions = {
       icon: '/icons/icon-192.png',
       badge: '/icons/icon-192.png',
-      vibrate: [200, 100, 200],
+      vibrate: [300, 100, 300, 100, 300],
+      requireInteraction: true,
+      renotify: true,
+      silent: false,
       dir: 'rtl',
       lang: 'ar',
       ...options

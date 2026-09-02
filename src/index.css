@@ -26,6 +26,35 @@
 }
 
 /* Dark Mode Contrast Optimizations */
+.dark body {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: #ffffff;
+}
+
+.dark .text-slate-900 {
+  color: #ffffff !important;
+}
+
+.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
 .dark input::placeholder,
 .dark textarea::placeholder {
   color: #94a3b8;

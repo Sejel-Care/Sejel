@@ -138,7 +138,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors max-w-full overflow-x-hidden">
       
       {/* Google Drive Session Expired Top Warning Banner */}
       {driveExpiredBanner && (

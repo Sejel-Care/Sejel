@@ -37,72 +37,72 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-30 glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-2">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full overflow-hidden">
+        <div className="flex items-center justify-between h-16 gap-1.5 sm:gap-2 max-w-full">
           
           {/* Mobile Hamburger & Logo */}
-          <div className="flex items-center space-x-2.5 rtl:space-x-reverse min-w-0">
+          <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 shrink">
             {/* Hamburger Button on Mobile */}
             <button
               onClick={onToggleMobileDrawer}
-              className="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="md:hidden p-1.5 rounded-xl text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
               title="القائمة الجانبية"
             >
               <Menu className="w-5 h-5" />
             </button>
 
             {/* Brand Logo */}
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white shadow-md shadow-primary-500/20 shrink-0">
-              <HeartPulse className="w-5 h-5 sm:w-6 sm:h-6 animate-pulse" />
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white shadow-md shadow-primary-500/20 shrink-0">
+              <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6 animate-pulse" />
             </div>
             
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
+            <div className="min-w-0 truncate">
+              <div className="flex items-center gap-1">
+                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
                   {t('app.name')}
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 shrink-0">
+                <span className="text-[9px] sm:text-[10px] font-bold px-1 py-0.2 rounded bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 shrink-0 hidden xs:inline-block">
                   PWA
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block truncate">
+              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block truncate">
                 {t('app.tagline')}
               </p>
             </div>
           </div>
 
           {/* Center / Family Patient Selector Dropdown */}
-          <div className="relative shrink-0">
+          <div className="relative shrink min-w-0">
             <button
               onClick={() => setShowPatientMenu(!showPatientMenu)}
-              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] xs:max-w-[180px] sm:max-w-[220px]"
             >
               {user?.photoURL ? (
                 <img 
                   src={user.photoURL} 
                   alt={user.displayName || 'User'} 
-                  className="w-6 h-6 rounded-full object-cover border border-primary-400"
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-primary-400 shrink-0"
                 />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
                   {activePatient ? activePatient.Name.charAt(0) : 'P'}
                 </div>
               )}
-              <span className="max-w-[90px] sm:max-w-[150px] truncate text-slate-800 dark:text-slate-200 font-bold">
+              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm">
                 {activePatient ? activePatient.Name : t('family.switch_patient')}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+              <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
             </button>
 
             {/* Patient Dropdown Menu */}
             {showPatientMenu && (
               <div 
-                className="absolute top-full mt-2 w-72 rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-50 animate-fade-in ltr:left-0 rtl:right-0"
+                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-50 animate-fade-in ltr:left-0 rtl:right-0 overflow-hidden"
                 onClick={() => setShowPatientMenu(false)}
               >
                 {/* Logged in Google User Info */}
                 {user && (
-                  <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5">
+                  <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5 overflow-hidden">
                     {user.photoURL ? (
                       <img src={user.photoURL} alt={user.displayName} className="w-9 h-9 rounded-full object-cover shrink-0 border border-primary-500" />
                     ) : (
@@ -110,11 +110,11 @@ export function Header({
                         {user.displayName ? user.displayName.charAt(0) : 'U'}
                       </div>
                     )}
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 overflow-hidden">
                       <p className="text-xs font-black text-slate-900 dark:text-white truncate">
                         {user.displayName || 'Google User'}
                       </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate">
+                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-mono truncate">
                         {user.email}
                       </p>
                     </div>

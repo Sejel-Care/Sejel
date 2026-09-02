@@ -13,18 +13,23 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Handle Background Push Messages from Firebase
+// 1. Handle Background Push Messages from Firebase (FCM)
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message:', payload);
-  const notificationTitle = payload.notification?.title || payload.data?.title || 'سِجِل - تنبيه صحي';
+  const notificationTitle = payload.notification?.title || payload.data?.title || 'سِجِل - تنبيه صحي 💊';
   const notificationOptions = {
-    body: payload.notification?.body || payload.data?.body || 'لديك موعد دواء أو فحص صحي مجدول.',
+    body: payload.notification?.body || payload.data?.body || 'لديك موعد دواء أو فحص صحي مجدول الآن.',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    vibrate: [200, 100, 200, 100, 200],
+    vibrate: [300, 100, 300, 100, 300],
+    tag: payload.data?.tag || `sejel-rem-${Date.now()}`,
+    renotify: true,
+    requireInteraction: true,
+    silent: false,
     data: payload.data || { url: '/' },
     actions: [
       { action: 'open', title: 'فتح سجل' },
+      { action: 'taken', title: 'تم أخذ الجرعة ✓' },
       { action: 'dismiss', title: 'إغلاق' }
     ],
     dir: 'rtl',
@@ -32,4 +37,29 @@ messaging.onBackgroundMessage((payload) => {
   };
 
   self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// 2. Handle Notification Click
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  if (event.action === 'dismiss') {
+    return;
+  }
+
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(targetUrl);
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });

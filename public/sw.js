@@ -115,9 +115,11 @@ self.addEventListener('push', (event) => {
     body: data.body || data.message || 'لديك موعد دواء أو زيارة طبية مجدولة الآن.',
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    vibrate: [250, 100, 250, 100, 250],
-    tag: data.tag || 'sejel-health-reminder',
+    vibrate: [300, 100, 300, 100, 300],
+    tag: data.tag || `sejel-rem-${Date.now()}`,
     renotify: true,
+    requireInteraction: true,
+    silent: false,
     data: {
       url: data.url || (data.type === 'appointment' ? '/#appointments' : '/#medications'),
       timestamp: Date.now()
