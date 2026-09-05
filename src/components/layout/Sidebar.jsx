@@ -1,154 +1,110 @@
 import React from 'react';
 import { useI18n } from '../../context/I18nContext';
 import { usePatient } from '../../context/PatientContext';
-import { 
-  Home, User, FileText, Stethoscope, Pill, 
-  Activity, Mic, Calendar, Settings, ShieldAlert, HeartPulse, X, Users 
+import { useAuth } from '../../context/AuthContext';
+import {
+  Home, User, Stethoscope, Pill, Activity, Mic, Calendar, FileText, Settings, ShieldAlert, X, HeartPulse
 } from 'lucide-react';
 
-export function Sidebar({ 
-  activeTab, 
-  setActiveTab, 
-  onOpenEmergency, 
-  isMobileDrawerOpen, 
-  onCloseMobileDrawer,
-  onOpenFamilyManagement
-}) {
-  const { lang, t } = useI18n();
+export function Sidebar({ isOpen, onClose, onOpenEmergency }) {
+  const { t } = useI18n();
   const { activePatient } = usePatient();
+  const { logout } = useAuth();
 
-  const navItems = [
-    { id: 'dashboard', label: t('nav.home'), icon: Home },
-    { id: 'profile', label: t('nav.profile'), icon: User },
-    { id: 'visits', label: t('nav.visits'), icon: Stethoscope },
-    { id: 'medications', label: t('nav.medications'), icon: Pill },
-    { id: 'vitals', label: t('nav.vitals'), icon: Activity },
-    { id: 'symptoms', label: t('nav.symptoms'), icon: Mic },
-    { id: 'appointments', label: t('nav.appointments'), icon: Calendar },
-    { id: 'documents', label: t('nav.documents'), icon: FileText },
-    { id: 'settings', label: t('nav.settings'), icon: Settings },
+  const menuItems = [
+    { icon: Home, label: t('nav.home'), active: true },
+    { icon: User, label: t('nav.profile') },
+    { icon: Stethoscope, label: t('nav.visits') },
+    { icon: Pill, label: t('nav.medications') },
+    { icon: Activity, label: t('nav.vitals') },
+    { icon: Mic, label: t('nav.symptoms') },
+    { icon: Calendar, label: t('nav.appointments') },
+    { icon: FileText, label: t('nav.documents') },
+    { icon: Settings, label: t('nav.settings') },
   ];
 
-  const handleNavClick = (tabId) => {
-    setActiveTab(tabId);
-    if (onCloseMobileDrawer) {
-      onCloseMobileDrawer();
-    }
-  };
+  return (
+    <div className={`fixed inset-0 z-50 lg:static lg:z-auto transition-all duration-300 ${isOpen ? 'visible' : 'invisible lg:visible'}`}>
+      {/* Overlay */}
+      <div onClick={onClose} className={`absolute inset-0 bg-black/50 lg:hidden ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity`} />
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full p-4">
-      
-      {/* Mobile Drawer Header with Close Button */}
-      <div className="md:hidden flex items-center justify-between pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-primary-600 text-white flex items-center justify-center font-black text-sm">
-            س
+      {/* Sidebar Content */}
+      <div className={`absolute left-0 top-0 h-full w-80 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col transform transition-transform duration-300 ${isOpen ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:translate-x-0'}`}>
+
+        {/* Brand Logo (Fixed) */}
+        <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="relative w-10 h-10 shrink-0">
+              <img
+                src="/icons/icon-192.png"
+                alt="شعار سجل"
+                className="w-full h-full object-contain rounded-xl"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-xl text-white">
+                <HeartPulse className="w-6 h-6" />
+              </div>
+            </div>
+            <span className="font-extrabold text-xl text-slate-900 dark:text-white">
+              {t('app.name')}
+            </span>
           </div>
-          <span className="font-extrabold text-base text-slate-900 dark:text-white">
-            {t('app.name')}
-          </span>
+          <button onClick={onClose} className="lg:hidden p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300">
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <button
-          onClick={onCloseMobileDrawer}
-          className="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
 
-      {/* Patient Mini Card */}
-      {activePatient && (
-        <div className="mb-4 p-3.5 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100/60 dark:from-slate-800 dark:to-slate-800/80 border border-primary-100 dark:border-slate-700/60 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center font-black text-sm shadow-sm shrink-0">
+        {/* Active Patient */}
+        {activePatient && (
+          <div className="p-4">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-black">
                 {activePatient.Name.charAt(0)}
               </div>
               <div className="min-w-0">
-                <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {activePatient.Name}
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold truncate">
-                  {activePatient.Gender === 'Male' ? t('profile.male') : t('profile.female')} • {activePatient.BloodType || 'O+'}
-                </p>
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{activePatient.Name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">+{activePatient.BloodType || 'O+'}</p>
               </div>
             </div>
-
-            <button
-              onClick={() => {
-                if (onCloseMobileDrawer) onCloseMobileDrawer();
-                onOpenFamilyManagement();
-              }}
-              className="p-1.5 rounded-lg bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 hover:bg-primary-50 shadow-xs shrink-0"
-              title="إدارة العائلة"
-            >
-              <Users className="w-4 h-4" />
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Navigation List */}
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
-        {navItems.map(item => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-          return (
+        {/* Navigation Items */}
+        <nav className="flex-1 overflow-y-auto p-2 space-y-1">
+          {menuItems.map((item, index) => (
             <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all text-right rtl:text-right ltr:text-left ${
-                isActive
-                  ? 'bg-primary-500 text-white shadow-md shadow-primary-500/25'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-              }`}
+              key={index}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${item.active
+                ? 'bg-primary-500 text-white shadow-md'
+                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
             >
-              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-slate-400 dark:text-slate-400'}`} />
+              <item.icon className="w-5 h-5 shrink-0" />
               <span className="truncate">{item.label}</span>
             </button>
-          );
-        })}
-      </nav>
+          ))}
+        </nav>
 
-      {/* Emergency SOS Quick Button */}
-      <div className="mt-4 pt-3 border-t border-slate-200/80 dark:border-slate-800">
-        <button
-          onClick={() => {
-            if (onCloseMobileDrawer) onCloseMobileDrawer();
-            onOpenEmergency();
-          }}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl bg-danger-500 hover:bg-danger-600 text-white font-extrabold text-xs shadow-lg shadow-danger-500/25 transition-all emergency-pulse active:scale-95"
-        >
-          <ShieldAlert className="w-5 h-5" />
-          <span>{t('emergency.title')}</span>
-        </button>
-      </div>
-
-    </div>
-  );
-
-  return (
-    <>
-      {/* 1. Desktop Fixed Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 border-r ltr:border-r rtl:border-l border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0 h-[calc(100vh-4rem)] sticky top-16 no-print">
-        {sidebarContent}
-      </aside>
-
-      {/* 2. Mobile Slide-in Drawer with Backdrop */}
-      {isMobileDrawerOpen && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden animate-fade-in no-print"
-          onClick={onCloseMobileDrawer}
-        >
-          <div 
-            className="fixed top-0 bottom-0 rtl:right-0 ltr:left-0 w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl z-50 animate-slide-up flex flex-col"
-            onClick={(e) => e.stopPropagation()}
+        {/* Emergency & Logout */}
+        <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
+          <button
+            onClick={onOpenEmergency}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white text-sm font-bold"
           >
-            {sidebarContent}
-          </div>
+            <ShieldAlert className="w-5 h-5" />
+            {t('emergency.sos_btn')}
+          </button>
+          <button
+            onClick={logout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold"
+          >
+            {t('common.logout')}
+          </button>
         </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 }
