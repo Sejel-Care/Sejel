@@ -36,13 +36,12 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-30 glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
+    <header className="sticky top-0 z-50 glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-center justify-between h-16 gap-1.5 sm:gap-2 max-w-full">
+        <div className="flex items-center justify-between h-auto min-h-16 flex-wrap gap-2 py-2 sm:py-0">
 
           {/* Mobile Hamburger & Logo */}
-          <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 shrink">
-            {/* Hamburger Button on Mobile */}
+          <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 flex-1">
             <button
               onClick={onToggleMobileDrawer}
               className="md:hidden p-1.5 rounded-xl text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
@@ -51,9 +50,20 @@ export function Header({
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Brand Logo */}
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white shadow-md shadow-primary-500/20 shrink-0">
-              <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6 animate-pulse" />
+            {/* Brand Logo with Fallback */}
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0 overflow-visible">
+              <img
+                src="/icons/icon-192.png"
+                alt="شعار سجل"
+                className="w-full h-full object-contain rounded-xl"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-xl text-white">
+                <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6" />
+              </div>
             </div>
 
             <div className="min-w-0 truncate">
@@ -72,10 +82,10 @@ export function Header({
           </div>
 
           {/* Center / Family Patient Selector Dropdown */}
-          <div className="relative shrink min-w-0">
+          <div className="relative min-w-0 max-w-[150px] sm:max-w-[220px] flex-shrink-0">
             <button
               onClick={() => setShowPatientMenu(!showPatientMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] xs:max-w-[180px] sm:max-w-[220px]"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium w-full"
             >
               {user?.photoURL ? (
                 <img
@@ -88,21 +98,21 @@ export function Header({
                   {activePatient ? activePatient.Name.charAt(0) : 'P'}
                 </div>
               )}
-              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm">
+              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm flex-1 text-left rtl:text-right">
                 {activePatient ? activePatient.Name : t('family.switch_patient')}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
             </button>
 
-            {/* Patient Dropdown Menu */}
+            {/* Patient Dropdown Menu - Fixed Z-Index and Overflow */}
             {showPatientMenu && (
               <div
-                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-50 animate-fade-in ltr:left-0 rtl:right-0 overflow-hidden"
-                onClick={() => setShowPatientMenu(false)}
+                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[100] animate-fade-in ltr:left-0 rtl:right-0 overflow-visible"
+                onClick={(e) => e.stopPropagation()}
               >
                 {/* Logged in Google User Info */}
                 {user && (
-                  <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5 overflow-hidden">
+                  <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5">
                     {user.photoURL ? (
                       <img src={user.photoURL} alt={user.displayName} className="w-9 h-9 rounded-full object-cover shrink-0 border border-primary-500" />
                     ) : (
@@ -110,7 +120,7 @@ export function Header({
                         {user.displayName ? user.displayName.charAt(0) : 'U'}
                       </div>
                     )}
-                    <div className="min-w-0 flex-1 overflow-hidden">
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-black text-slate-900 dark:text-white truncate">
                         {user.displayName || 'Google User'}
                       </p>
@@ -193,8 +203,7 @@ export function Header({
           </div>
 
           {/* Right Action Icons & Badges */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0 ml-auto">
             {/* Sync Status Badge / Button */}
             <button
               onClick={() => triggerSync()}
