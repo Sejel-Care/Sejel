@@ -2,17 +2,10 @@ import React from 'react';
 import { useI18n } from '../../context/I18nContext';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
-import { Home, User, Stethoscope, Pill, Activity, Mic, Calendar, FileText, Settings, ShieldAlert, X, HeartPulse } from 'lucide-react';
+import { Home, User, Stethoscope, Pill, Activity, Mic, Calendar, FileText, Settings, ShieldAlert, X, HeartPulse, LogOut } from 'lucide-react';
 
-export function Sidebar({
-  activeTab,
-  setActiveTab,
-  onOpenEmergency,
-  isMobileDrawerOpen,
-  onCloseMobileDrawer,
-  onOpenFamilyManagement
-}) {
-  const { t } = useI18n();
+export function Sidebar({ activeTab, setActiveTab, onOpenEmergency, isMobileDrawerOpen, onCloseMobileDrawer, onOpenFamilyManagement }) {
+  const { lang, t } = useI18n();
   const { activePatient } = usePatient();
   const { logout } = useAuth();
 
@@ -40,15 +33,7 @@ export function Sidebar({
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative w-10 h-10 shrink-0">
-              <img
-                src="/icons/icon-192.png"
-                alt="شعار سجل"
-                className="w-full h-full object-contain rounded-xl"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
+              <img src="/icons/icon-192.png" alt="شعار سجل" className="w-full h-full object-contain rounded-xl" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
               <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-xl text-white">
                 <HeartPulse className="w-6 h-6" />
               </div>
@@ -82,10 +67,7 @@ export function Sidebar({
                 setActiveTab(item.tab);
                 onCloseMobileDrawer();
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === item.tab
-                ? 'bg-primary-500 text-white shadow-md'
-                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${activeTab === item.tab ? 'bg-primary-500 text-white shadow-md' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
               <span className="truncate">{item.label}</span>
@@ -95,18 +77,18 @@ export function Sidebar({
 
         {/* Emergency & Logout */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
-          <button
-            onClick={onOpenEmergency}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white text-sm font-bold"
-          >
+          <button onClick={onOpenEmergency} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white text-sm font-bold">
             <ShieldAlert className="w-5 h-5" />
             {t('emergency.sos_btn')}
           </button>
           <button
-            onClick={logout}
+            onClick={async () => {
+              await logout();
+            }}
             className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-bold"
           >
-            {t('common.logout')}
+            <LogOut className="w-5 h-5" />
+            {lang === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}
           </button>
         </div>
       </div>
