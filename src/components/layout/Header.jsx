@@ -4,9 +4,8 @@ import { usePatient } from '../../context/PatientContext';
 import { useSync } from '../../context/SyncContext';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Users, ShieldAlert, Lock, RefreshCw, Globe,
-  Wifi, WifiOff, Plus, Moon, Sun, HeartPulse, ChevronDown,
-  Menu, UserCog, Settings as SettingsIcon, LogOut
+  ShieldAlert, Lock, RefreshCw, Wifi, WifiOff, Plus, Moon, Sun, HeartPulse, ChevronDown,
+  Menu, UserCog, LogOut
 } from 'lucide-react';
 
 export function Header({
@@ -51,7 +50,7 @@ export function Header({
             </button>
 
             {/* Brand Logo with Fallback */}
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0 overflow-visible">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0">
               <img
                 src="/icons/icon-192.png"
                 alt="شعار سجل"
@@ -185,7 +184,6 @@ export function Header({
                     <span>{t('family.add_member')}</span>
                   </button>
 
-                  {/* Sign Out Button */}
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -204,7 +202,6 @@ export function Header({
 
           {/* Right Action Icons & Badges */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0 ml-auto">
-            {/* Sync Status Badge / Button */}
             <button
               onClick={() => triggerSync()}
               title={isOnline ? (isSyncing ? t('common.loading') : t('settings.sync_now')) : t('app.offline_badge')}
@@ -227,7 +224,6 @@ export function Header({
               </span>
             </button>
 
-            {/* Emergency SOS Button */}
             <button
               onClick={onOpenEmergency}
               className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white text-xs font-bold shadow-md shadow-danger-500/25 transition-all emergency-pulse"
@@ -237,7 +233,6 @@ export function Header({
               <span className="hidden sm:inline">{t('emergency.sos_btn')}</span>
             </button>
 
-            {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
               className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -246,7 +241,6 @@ export function Header({
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* Dynamic Language Toggle Button */}
             <button
               onClick={toggleLang}
               className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors"
@@ -255,7 +249,6 @@ export function Header({
               {lang === 'ar' ? 'English' : 'عربي'}
             </button>
 
-            {/* PIN Lock Trigger */}
             <button
               onClick={lock}
               className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
