@@ -35,9 +35,9 @@ export function Header({
   };
 
   return (
-    <header className="sticky top-0 z-50 glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
+    <header className="sticky top-0 z-[999] glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-center justify-between h-auto min-h-16 flex-wrap gap-2 py-2 sm:py-0">
+        <div className="flex items-center justify-between h-16 gap-1.5 sm:gap-2 max-w-full">
 
           {/* Mobile Hamburger & Logo */}
           <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 flex-1">
@@ -106,7 +106,7 @@ export function Header({
             {/* Patient Dropdown Menu - Fixed Z-Index and Overflow */}
             {showPatientMenu && (
               <div
-                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[100] animate-fade-in ltr:left-0 rtl:right-0 overflow-visible"
+                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Logged in Google User Info */}
@@ -184,6 +184,7 @@ export function Header({
                     <span>{t('family.add_member')}</span>
                   </button>
 
+                  {/* Sign Out Button */}
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -201,7 +202,7 @@ export function Header({
           </div>
 
           {/* Right Action Icons & Badges */}
-          <div className="flex items-center gap-1 sm:gap-2 shrink-0 ml-auto">
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               onClick={() => triggerSync()}
               title={isOnline ? (isSyncing ? t('common.loading') : t('settings.sync_now')) : t('app.offline_badge')}
