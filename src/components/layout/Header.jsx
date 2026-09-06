@@ -37,10 +37,9 @@ export function Header({
   return (
     <header className="sticky top-0 z-[999] glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
-        {/* ارتفاع ثابت h-16 دايماً، وبدون flex-wrap، عشان القائمة الجانبية تحسب مكانها صح */}
         <div className="flex items-center justify-between gap-1.5 sm:gap-2 h-16">
 
-          {/* مجموعة اليسار: زر الهامبرغر + الشعار */}
+          {/* مجموعة اليسار: الهامبرغر + الشعار */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onToggleMobileDrawer}
@@ -64,18 +63,17 @@ export function Header({
                 <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
             </div>
-            {/* اسم التطبيق يظهر بس من مقاس sm فوق، عشان يوفر مساحة على الموبايل الصغير */}
             <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white hidden sm:inline-block">
               {t('app.name')}
             </span>
           </div>
 
-          {/* مجموعة المنتصف: اسم المريض - دايماً في المنتصف مهما اختلف حجم المجموعتين التانيتين */}
+          {/* مجموعة المنتصف: اسم المريض - مساحة أصغر على الموبايل عشان تسيب فاصل واضح مع الأيقونات */}
           <div className="flex-1 min-w-0 flex justify-center">
             <div className="relative min-w-0">
               <button
                 onClick={() => setShowPatientMenu(!showPatientMenu)}
-                className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] sm:max-w-[220px]"
+                className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[96px] sm:max-w-[220px]"
               >
                 <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
                   {activePatient ? activePatient.Name.charAt(0) : 'P'}
@@ -86,9 +84,10 @@ export function Header({
                 <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
               </button>
 
+              {/* القائمة دلوقتي مثبتة بالنسبة للشاشة (fixed) مش معلقة على الزرار - عشان متطلعش بره الشاشة أبداً */}
               {showPatientMenu && (
                 <div
-                  className="absolute top-full mt-2 w-72 max-w-[85vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0"
+                  className="fixed top-[4.5rem] inset-x-3 sm:inset-x-auto sm:left-auto sm:right-6 sm:w-72 mx-auto rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {user && (
@@ -184,7 +183,7 @@ export function Header({
             </div>
           </div>
 
-          {/* مجموعة اليمين: بس الأيقونات الأهم على الموبايل (مزامنة + طوارئ + وضع ليلي) */}
+          {/* مجموعة اليمين: مزامنة، طوارئ، وضع ليلي، قفل - وبعدين اللغة على الشاشات الكبيرة بس */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button onClick={() => triggerSync()} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="مزامنة">
               {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin" /> : isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
@@ -195,14 +194,10 @@ export function Header({
             <button onClick={toggleDarkMode} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-
-            {/* اللغة والقفل: يظهروا في الهيدر بس على الشاشات الكبيرة */}
-            {/* القفل: ظاهر دايماً حتى على الموبايل، لأنه إجراء أمان سريع */}
             <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
               <Lock className="w-4 h-4" />
             </button>
 
-            {/* اللغة: تفضيل نادر التغيير، يكفي يظهر من الشاشات المتوسطة فوق */}
             <div className="hidden sm:flex items-center gap-1 sm:gap-2">
               <button onClick={toggleLang} className="px-2 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700">
                 {lang === 'ar' ? 'EN' : 'ع'}
