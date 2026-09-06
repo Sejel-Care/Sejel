@@ -39,61 +39,55 @@ export function Header({
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between h-16 gap-1.5 sm:gap-2 max-w-full">
 
-          {/* Mobile Hamburger & Logo */}
-          <div className="flex items-center space-x-2 rtl:space-x-reverse min-w-0 flex-1">
+          {/* Mobile Hamburger & Logo (مع مسافة أكبر) */}
+          <div className="flex items-center space-x-3 rtl:space-x-reverse min-w-0 flex-1">
             <button
               onClick={onToggleMobileDrawer}
-              className="md:hidden p-1.5 rounded-xl text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+              className="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
               title="القائمة الجانبية"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-6 h-6" />
             </button>
 
-            {/* Brand Logo with Fallback */}
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0">
+            {/* Brand Logo with Fallback (تصغير الحجم) */}
+            <div className="relative w-7 h-7 sm:w-9 sm:h-9 shrink-0">
               <img
                 src="/icons/icon-192.png"
                 alt="شعار سجل"
-                className="w-full h-full object-contain rounded-xl"
+                className="w-full h-full object-contain rounded-lg"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
                 }}
               />
-              <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-xl text-white">
-                <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6" />
+              <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-lg text-white">
+                <HeartPulse className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </div>
 
-            <div className="min-w-0 truncate">
+            <div className="min-w-0 truncate hidden sm:block">
               <div className="flex items-center gap-1">
-                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white truncate">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
                   {t('app.name')}
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold px-1 py-0.2 rounded bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 shrink-0 hidden xs:inline-block">
-                  PWA
-                </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block truncate">
-                {t('app.tagline')}
-              </p>
             </div>
           </div>
 
-          {/* Center / Family Patient Selector Dropdown */}
-          <div className="relative min-w-0 max-w-[150px] sm:max-w-[220px] flex-shrink-0">
+          {/* Center / Family Patient Selector Dropdown (بعيد عن الهامبرغر) */}
+          <div className="relative min-w-0 max-w-[140px] sm:max-w-[220px] flex-shrink-0 ml-2">
             <button
               onClick={() => setShowPatientMenu(!showPatientMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium w-full"
+              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium w-full"
             >
               {user?.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'User'}
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-primary-400 shrink-0"
+                  className="w-6 h-6 sm:w-6 sm:h-6 rounded-full object-cover border border-primary-400 shrink-0"
                 />
               ) : (
-                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+                <div className="w-6 h-6 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
                   {activePatient ? activePatient.Name.charAt(0) : 'P'}
                 </div>
               )}
@@ -103,7 +97,7 @@ export function Header({
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
             </button>
 
-            {/* Patient Dropdown Menu - Fixed Z-Index and Overflow */}
+            {/* Patient Dropdown Menu (زمن متقدم) */}
             {showPatientMenu && (
               <div
                 className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
@@ -201,7 +195,7 @@ export function Header({
             )}
           </div>
 
-          {/* Right Action Icons & Badges */}
+          {/* Right Action Icons & Badges (مصغرة) */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button
               onClick={() => triggerSync()}
