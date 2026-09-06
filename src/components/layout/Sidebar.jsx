@@ -39,7 +39,7 @@ export function Sidebar({ activeTab, setActiveTab, onOpenEmergency, isMobileDraw
     <div className={`fixed inset-0 z-[1000] lg:static lg:z-auto transition-all duration-300 ${isMobileDrawerOpen ? 'visible' : 'invisible lg:visible'}`}>
       <div onClick={onCloseMobileDrawer} className={`absolute inset-0 bg-black/50 lg:hidden ${isMobileDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'} transition-opacity`} />
 
-      <div className={`absolute left-0 top-16 h-[calc(100vh-4rem)] w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col transform transition-transform duration-300 ${isMobileDrawerOpen ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:translate-x-0'}`}>
+      <div className={`absolute left-0 rtl:left-auto rtl:right-0 top-16 h-[calc(100vh-4rem)] w-72 max-w-[85vw] bg-white dark:bg-slate-900 shadow-2xl flex flex-col transform transition-transform duration-300 ${isMobileDrawerOpen ? 'translate-x-0 rtl:-translate-x-0' : '-translate-x-full rtl:translate-x-full lg:translate-x-0 lg:rtl:translate-x-0'}`}>
 
         <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
@@ -90,9 +90,6 @@ export function Sidebar({ activeTab, setActiveTab, onOpenEmergency, isMobileDraw
             </button>
             <button onClick={toggleLang} className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
               {lang === 'ar' ? 'English' : 'عربي'}
-            </button>
-            <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" title="قفل">
-              <Lock className="w-5 h-5" />
             </button>
           </div>
 

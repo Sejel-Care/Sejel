@@ -196,13 +196,16 @@ export function Header({
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
 
-            {/* اللغة والقفل: يظهروا في الهيدر بس على الشاشات الكبيرة، وعلى الموبايل تلاقيهم جوه القائمة الجانبية */}
+            {/* اللغة والقفل: يظهروا في الهيدر بس على الشاشات الكبيرة */}
+            {/* القفل: ظاهر دايماً حتى على الموبايل، لأنه إجراء أمان سريع */}
+            <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
+              <Lock className="w-4 h-4" />
+            </button>
+
+            {/* اللغة: تفضيل نادر التغيير، يكفي يظهر من الشاشات المتوسطة فوق */}
             <div className="hidden sm:flex items-center gap-1 sm:gap-2">
               <button onClick={toggleLang} className="px-2 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700">
                 {lang === 'ar' ? 'EN' : 'ع'}
-              </button>
-              <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
-                <Lock className="w-4 h-4" />
               </button>
             </div>
           </div>
