@@ -47,9 +47,9 @@ export function PinLockModal() {
   };
 
   const verifyPin = (candidatePin) => {
-    const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '1990';
+    const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '0000';
     const res = unlock(candidatePin, birthYear);
-    
+
     if (!res.success) {
       setIsError(true);
       setErrorMessage(t('security.wrong_pin'));
@@ -61,14 +61,14 @@ export function PinLockModal() {
 
   const handleBiometricUnlock = () => {
     // محاكاة فتح القفل بالبصمة الحيوية
-    const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '1990';
+    const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '0000';
     unlock(pinCode || birthYear, birthYear);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-fade-in">
       <div className="w-full max-w-sm bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
-        
+
         {/* Lock Icon Header */}
         <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-400 text-white flex items-center justify-center shadow-lg shadow-primary-500/30 mb-4">
           <Lock className="w-8 h-8" />
@@ -86,11 +86,10 @@ export function PinLockModal() {
           {[0, 1, 2, 3].map(idx => (
             <div
               key={idx}
-              className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                pin.length > idx
-                  ? 'bg-primary-500 scale-125 shadow-md shadow-primary-500/40'
-                  : 'bg-slate-200 dark:bg-slate-700'
-              } ${isError ? 'bg-danger-500 ring-2 ring-danger-300' : ''}`}
+              className={`w-4 h-4 rounded-full transition-all duration-200 ${pin.length > idx
+                ? 'bg-primary-500 scale-125 shadow-md shadow-primary-500/40'
+                : 'bg-slate-200 dark:bg-slate-700'
+                } ${isError ? 'bg-danger-500 ring-2 ring-danger-300' : ''}`}
             />
           ))}
         </div>
@@ -146,7 +145,7 @@ export function PinLockModal() {
         <div className="pt-2">
           <button
             onClick={() => {
-              const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '1990';
+              const birthYear = activePatient && activePatient.BirthDate ? activePatient.BirthDate.substring(0, 4) : '0000';
               setPin(birthYear);
               verifyPin(birthYear);
             }}
