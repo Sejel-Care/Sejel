@@ -84,10 +84,8 @@ export function Sidebar({ activeTab, setActiveTab, onOpenEmergency, isMobileDraw
 
         <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2 shrink-0">
           {/* اللغة والوضع الليلي والقفل: هنا بس على الموبايل، لأنهم اتشالوا من الهيدر على الشاشة الصغيرة */}
-          <div className="flex sm:hidden items-center justify-around gap-2 pb-2 mb-2 border-b border-slate-100 dark:border-slate-700/60">
-            <button onClick={toggleDarkMode} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" title="الوضع الليلي">
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+          <div className="flex sm:hidden items-center justify-center pb-2 mb-2 border-b border-slate-100 dark:border-slate-700/60">
+
             <button onClick={toggleLang} className="px-3 py-2 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
               {lang === 'ar' ? 'English' : 'عربي'}
             </button>

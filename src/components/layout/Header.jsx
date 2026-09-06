@@ -88,7 +88,7 @@ export function Header({
 
               {showPatientMenu && (
                 <div
-                  className="absolute top-full mt-2 w-72 max-w-[85vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
+                  className="absolute top-full mt-2 w-72 max-w-[85vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {user && (
