@@ -37,9 +37,10 @@ export function Header({
   return (
     <header className="sticky top-0 z-[999] glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-center justify-between gap-2 flex-wrap py-2">
+        {/* ارتفاع ثابت h-16 دايماً، وبدون flex-wrap، عشان القائمة الجانبية تحسب مكانها صح */}
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 h-16">
 
-          {/* مجموعة اليسار: زر الهامبرغر + الشعار (بدون أي تداخل) */}
+          {/* مجموعة اليسار: زر الهامبرغر + الشعار */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onToggleMobileDrawer}
@@ -63,128 +64,127 @@ export function Header({
                 <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
             </div>
-            <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white hidden xs:inline-block">
+            {/* اسم التطبيق يظهر بس من مقاس sm فوق، عشان يوفر مساحة على الموبايل الصغير */}
+            <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white hidden sm:inline-block">
               {t('app.name')}
             </span>
           </div>
 
-          {/* مجموعة المنتصف: اسم المستخدم (مع منع التزاحم) */}
-          <div className="relative min-w-0 flex-shrink-0">
-            <button
-              onClick={() => setShowPatientMenu(!showPatientMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] sm:max-w-[220px]"
-            >
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
-                {activePatient ? activePatient.Name.charAt(0) : 'P'}
-              </div>
-              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm">
-                {activePatient ? activePatient.Name : t('family.switch_patient')}
-              </span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
-            </button>
-
-            {/* القائمة المنسدلة (تغلق تلقائياً عند اختيار فرد) */}
-            {showPatientMenu && (
-              <div
-                className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
+          {/* مجموعة المنتصف: اسم المريض - دايماً في المنتصف مهما اختلف حجم المجموعتين التانيتين */}
+          <div className="flex-1 min-w-0 flex justify-center">
+            <div className="relative min-w-0">
+              <button
+                onClick={() => setShowPatientMenu(!showPatientMenu)}
+                className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] sm:max-w-[220px]"
               >
-                {/* معلومات المستخدم المسجل */}
-                {user && (
-                  <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5">
-                    {user.photoURL ? (
-                      <img src={user.photoURL} alt={user.displayName} className="w-9 h-9 rounded-full object-cover shrink-0 border border-primary-500" />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-primary-500 text-white font-black text-sm flex items-center justify-center shrink-0">
-                        {user.displayName ? user.displayName.charAt(0) : 'U'}
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-black text-slate-900 dark:text-white truncate">
-                        {user.displayName || 'Google User'}
-                      </p>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-300 font-mono truncate">
-                        {user.email}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="px-3 py-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center justify-between">
-                  <span>{t('family.switch_patient')}</span>
-                  <span className="text-[10px] font-mono">{patients.length} أفراد</span>
+                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+                  {activePatient ? activePatient.Name.charAt(0) : 'P'}
                 </div>
+                <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm">
+                  {activePatient ? activePatient.Name : t('family.switch_patient')}
+                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+              </button>
 
-                {/* قائمة أفراد العائلة - عند الضغط يتم الإغلاق فوراً */}
-                <div className="space-y-1 max-h-48 overflow-y-auto mt-1">
-                  {patients.map(p => (
-                    <button
-                      key={p.PatientID}
-                      onClick={() => {
-                        switchPatient(p.PatientID);
-                        setShowPatientMenu(false); // هذا هو السطر الذي يغلق القائمة
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors text-right rtl:text-right ltr:text-left ${p.PatientID === activePatientId
-                        ? 'bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-extrabold'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-medium'
-                        }`}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold shrink-0">
-                          {p.Name.charAt(0)}
+              {showPatientMenu && (
+                <div
+                  className="absolute top-full mt-2 w-72 max-w-[85vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {user && (
+                    <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5">
+                      {user.photoURL ? (
+                        <img src={user.photoURL} alt={user.displayName} className="w-9 h-9 rounded-full object-cover shrink-0 border border-primary-500" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-primary-500 text-white font-black text-sm flex items-center justify-center shrink-0">
+                          {user.displayName ? user.displayName.charAt(0) : 'U'}
                         </div>
-                        <span className="truncate">{p.Name}</span>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-black text-slate-900 dark:text-white truncate">
+                          {user.displayName || 'Google User'}
+                        </p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-300 font-mono truncate">
+                          {user.email}
+                        </p>
                       </div>
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-mono font-bold">
-                        {p.BloodType || 'O+'}
-                      </span>
+                    </div>
+                  )}
+
+                  <div className="px-3 py-1.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                    <span>{t('family.switch_patient')}</span>
+                    <span className="text-[10px] font-mono">{patients.length} أفراد</span>
+                  </div>
+
+                  <div className="space-y-1 max-h-48 overflow-y-auto mt-1">
+                    {patients.map(p => (
+                      <button
+                        key={p.PatientID}
+                        onClick={() => {
+                          switchPatient(p.PatientID);
+                          setShowPatientMenu(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors text-right rtl:text-right ltr:text-left ${p.PatientID === activePatientId
+                          ? 'bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-extrabold'
+                          : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-medium'
+                          }`}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-xs font-bold shrink-0">
+                            {p.Name.charAt(0)}
+                          </div>
+                          <span className="truncate">{p.Name}</span>
+                        </div>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200/60 dark:bg-slate-700 text-slate-600 dark:text-slate-400 font-mono font-bold">
+                          {p.BloodType || 'O+'}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowPatientMenu(false);
+                        onOpenFamilyManagement();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all"
+                    >
+                      <UserCog className="w-4 h-4 text-primary-500" />
+                      <span>إدارة العائلة</span>
                     </button>
-                  ))}
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowPatientMenu(false);
+                        onOpenAddPatient();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-all shadow-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>{t('family.add_member')}</span>
+                    </button>
+
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        setShowPatientMenu(false);
+                        await logout();
+                      }}
+                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold transition-all"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{lang === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}</span>
+                    </button>
+                  </div>
                 </div>
-
-                {/* أزرار الإدارة والإضافة */}
-                <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowPatientMenu(false);
-                      onOpenFamilyManagement();
-                    }}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-xs font-bold transition-all"
-                  >
-                    <UserCog className="w-4 h-4 text-primary-500" />
-                    <span>إدارة العائلة</span>
-                  </button>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowPatientMenu(false);
-                      onOpenAddPatient();
-                    }}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-all shadow-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>{t('family.add_member')}</span>
-                  </button>
-
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      setShowPatientMenu(false);
-                      await logout();
-                    }}
-                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 text-xs font-bold transition-all"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>{lang === 'ar' ? 'تسجيل الخروج' : 'Sign Out'}</span>
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* مجموعة اليمين: الأيقونات */}
+          {/* مجموعة اليمين: بس الأيقونات الأهم على الموبايل (مزامنة + طوارئ + وضع ليلي) */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
             <button onClick={() => triggerSync()} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="مزامنة">
               {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin" /> : isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
@@ -195,12 +195,16 @@ export function Header({
             <button onClick={toggleDarkMode} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-            <button onClick={toggleLang} className="px-2 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700">
-              {lang === 'ar' ? 'EN' : 'ع'}
-            </button>
-            <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
-              <Lock className="w-4 h-4" />
-            </button>
+
+            {/* اللغة والقفل: يظهروا في الهيدر بس على الشاشات الكبيرة، وعلى الموبايل تلاقيهم جوه القائمة الجانبية */}
+            <div className="hidden sm:flex items-center gap-1 sm:gap-2">
+              <button onClick={toggleLang} className="px-2 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700">
+                {lang === 'ar' ? 'EN' : 'ع'}
+              </button>
+              <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
+                <Lock className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
         </div>
