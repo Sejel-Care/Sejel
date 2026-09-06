@@ -37,10 +37,10 @@ export function Header({
   return (
     <header className="sticky top-0 z-[999] glass-nav border-b border-slate-200/80 dark:border-slate-800 transition-colors shadow-sm no-print">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 w-full">
-        <div className="flex items-center justify-between h-16 gap-1.5 sm:gap-2 max-w-full">
+        <div className="flex items-center justify-between gap-2 flex-wrap py-2">
 
-          {/* Mobile Hamburger & Logo (مع مسافة أكبر) */}
-          <div className="flex items-center space-x-3 rtl:space-x-reverse min-w-0 flex-1">
+          {/* مجموعة اليسار: زر الهامبرغر + الشعار (بدون أي تداخل) */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={onToggleMobileDrawer}
               className="md:hidden p-2 rounded-xl text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
@@ -49,8 +49,7 @@ export function Header({
               <Menu className="w-6 h-6" />
             </button>
 
-            {/* Brand Logo with Fallback (تصغير الحجم) */}
-            <div className="relative w-7 h-7 sm:w-9 sm:h-9 shrink-0">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 shrink-0">
               <img
                 src="/icons/icon-192.png"
                 alt="شعار سجل"
@@ -61,49 +60,36 @@ export function Header({
                 }}
               />
               <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-primary-600 to-primary-400 rounded-lg text-white">
-                <HeartPulse className="w-4 h-4 sm:w-5 sm:h-5" />
+                <HeartPulse className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
             </div>
-
-            <div className="min-w-0 truncate hidden sm:block">
-              <div className="flex items-center gap-1">
-                <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white truncate">
-                  {t('app.name')}
-                </span>
-              </div>
-            </div>
+            <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-900 dark:text-white hidden xs:inline-block">
+              {t('app.name')}
+            </span>
           </div>
 
-          {/* Center / Family Patient Selector Dropdown (بعيد عن الهامبرغر) */}
-          <div className="relative min-w-0 max-w-[140px] sm:max-w-[220px] flex-shrink-0 ml-2">
+          {/* مجموعة المنتصف: اسم المستخدم (مع منع التزاحم) */}
+          <div className="relative min-w-0 flex-shrink-0">
             <button
               onClick={() => setShowPatientMenu(!showPatientMenu)}
-              className="flex items-center gap-1 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium w-full"
+              className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all text-xs sm:text-sm font-medium max-w-[130px] sm:max-w-[220px]"
             >
-              {user?.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt={user.displayName || 'User'}
-                  className="w-6 h-6 sm:w-6 sm:h-6 rounded-full object-cover border border-primary-400 shrink-0"
-                />
-              ) : (
-                <div className="w-6 h-6 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
-                  {activePatient ? activePatient.Name.charAt(0) : 'P'}
-                </div>
-              )}
-              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm flex-1 text-left rtl:text-right">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary-500 text-white flex items-center justify-center text-xs font-black shrink-0">
+                {activePatient ? activePatient.Name.charAt(0) : 'P'}
+              </div>
+              <span className="truncate text-slate-800 dark:text-white font-bold text-xs sm:text-sm">
                 {activePatient ? activePatient.Name : t('family.switch_patient')}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
             </button>
 
-            {/* Patient Dropdown Menu (زمن متقدم) */}
+            {/* القائمة المنسدلة (تغلق تلقائياً عند اختيار فرد) */}
             {showPatientMenu && (
               <div
                 className="absolute top-full mt-2 w-72 max-w-[90vw] rounded-3xl bg-white dark:bg-slate-800 shadow-2xl border border-slate-200 dark:border-slate-700 p-2.5 z-[1000] animate-fade-in ltr:left-0 rtl:right-0 max-h-[70vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Logged in Google User Info */}
+                {/* معلومات المستخدم المسجل */}
                 {user && (
                   <div className="p-2.5 mb-2 rounded-2xl bg-slate-50 dark:bg-slate-700/50 border border-slate-200/60 dark:border-slate-700 flex items-center gap-2.5">
                     {user.photoURL ? (
@@ -129,11 +115,15 @@ export function Header({
                   <span className="text-[10px] font-mono">{patients.length} أفراد</span>
                 </div>
 
+                {/* قائمة أفراد العائلة - عند الضغط يتم الإغلاق فوراً */}
                 <div className="space-y-1 max-h-48 overflow-y-auto mt-1">
                   {patients.map(p => (
                     <button
                       key={p.PatientID}
-                      onClick={() => switchPatient(p.PatientID)}
+                      onClick={() => {
+                        switchPatient(p.PatientID);
+                        setShowPatientMenu(false); // هذا هو السطر الذي يغلق القائمة
+                      }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors text-right rtl:text-right ltr:text-left ${p.PatientID === activePatientId
                         ? 'bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300 font-extrabold'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-700/50 text-slate-700 dark:text-slate-300 font-medium'
@@ -152,7 +142,7 @@ export function Header({
                   ))}
                 </div>
 
-                {/* Management and Add Actions inside Dropdown */}
+                {/* أزرار الإدارة والإضافة */}
                 <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
                   <button
                     onClick={(e) => {
@@ -178,7 +168,6 @@ export function Header({
                     <span>{t('family.add_member')}</span>
                   </button>
 
-                  {/* Sign Out Button */}
                   <button
                     onClick={async (e) => {
                       e.stopPropagation();
@@ -195,60 +184,21 @@ export function Header({
             )}
           </div>
 
-          {/* Right Action Icons & Badges (مصغرة) */}
+          {/* مجموعة اليمين: الأيقونات */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            <button
-              onClick={() => triggerSync()}
-              title={isOnline ? (isSyncing ? t('common.loading') : t('settings.sync_now')) : t('app.offline_badge')}
-              className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all ${!isOnline
-                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400'
-                : pendingCount > 0
-                  ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300'
-                  : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
-                }`}
-            >
-              {isSyncing ? (
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              ) : isOnline ? (
-                <Wifi className="w-3.5 h-3.5" />
-              ) : (
-                <WifiOff className="w-3.5 h-3.5" />
-              )}
-              <span className="hidden lg:inline">
-                {!isOnline ? t('app.offline_badge') : isSyncing ? t('common.loading') : pendingCount > 0 ? `${pendingCount} معلق` : t('app.online_badge')}
-              </span>
+            <button onClick={() => triggerSync()} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="مزامنة">
+              {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin" /> : isOnline ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
             </button>
-
-            <button
-              onClick={onOpenEmergency}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-danger-500 hover:bg-danger-600 text-white text-xs font-bold shadow-md shadow-danger-500/25 transition-all emergency-pulse"
-              title="بطاقة الطوارئ الطبية الفورية"
-            >
+            <button onClick={onOpenEmergency} className="p-2 rounded-xl bg-danger-500 hover:bg-danger-600 text-white" title="طوارئ">
               <ShieldAlert className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('emergency.sos_btn')}</span>
             </button>
-
-            <button
-              onClick={toggleDarkMode}
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title={isDark ? t('settings.light') : t('settings.dark')}
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            <button onClick={toggleDarkMode} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
-
-            <button
-              onClick={toggleLang}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-colors"
-              title={lang === 'ar' ? 'Switch to English' : 'التحويل للغة العربية'}
-            >
-              {lang === 'ar' ? 'English' : 'عربي'}
+            <button onClick={toggleLang} className="px-2 py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-700">
+              {lang === 'ar' ? 'EN' : 'ع'}
             </button>
-
-            <button
-              onClick={lock}
-              className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              title={t('security.lock_now')}
-            >
+            <button onClick={lock} className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" title="قفل">
               <Lock className="w-4 h-4" />
             </button>
           </div>
